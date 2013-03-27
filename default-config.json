@@ -1,0 +1,6 @@
+{
+	"mongoAppDb"        : {
+		"host" : "localhost",
+		"db"   : "520-application-dev"
+	}
+}

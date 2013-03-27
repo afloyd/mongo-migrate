@@ -1,0 +1,24 @@
+{
+  "name": "mongo-migrate",
+  "version": "0.0.1",
+  "description": "Migration framework for mongo in node",
+  "keywords": [
+    "migrate",
+    "migrations"
+  ],
+  "author": {
+    "name": "Austin Floyd",
+    "email": "texsc98@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/afloyd/mongo-migrate"
+  },
+  "devDependencies": {
+    "mongodb": "1.1.11"
+  },
+  "main": "index",
+  "engines": {
+    "node": ">= 0.8.x"
+  }
+}

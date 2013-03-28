@@ -251,7 +251,6 @@ function runMongoMigrate() {
 	}
 
 	// invoke command
-
 	var command = options.command || 'up';
 	if (!(command in commands)) abort('unknown command "' + command + '"');
 	command = commands[command];
@@ -259,7 +258,6 @@ function runMongoMigrate() {
 }
 
 function chdir(dir) {
-	cwd = dir;
 	process.chdir(cwd = dir);
 }
 

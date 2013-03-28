@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Migration framework for mongo in node",
   "keywords": [
+    "mongo",
     "migrate",
     "migrations"
   ],

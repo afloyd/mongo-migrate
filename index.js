@@ -199,9 +199,6 @@ function runMongoMigrate() {
 	 * @param {String} direction
 	 */
 	function performMigration(direction) {
-		//Revert working directory to previous state
-		process.chdir(previousWorkingDirectory);
-
 		var db = require('./lib/db');
 		db.getConnection(require('./' + configFileName)[dbProperty], function (err, db) {
 			var migrationCollection = db.migrationCollection,
@@ -211,7 +208,7 @@ function runMongoMigrate() {
 				process.exit(1);
 			}
 
-			migrationCollection.find({}).sort({num: -11}).limit(1).toArray(function (err, migrationsRun) {
+			migrationCollection.find({}).sort({num: -1}).limit(1).toArray(function (err, migrationsRun) {
 				if (err) {
 					console.error('Error querying migration collection', err);
 					process.exit(1);
@@ -233,6 +230,9 @@ function runMongoMigrate() {
 						up: mod.up,
 						down: mod.down});
 				});
+
+				//Revert working directory to previous state
+				process.chdir(previousWorkingDirectory);
 
 				var set = migrate();
 

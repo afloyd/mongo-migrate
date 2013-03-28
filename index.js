@@ -199,6 +199,9 @@ function runMongoMigrate() {
 	 * @param {String} direction
 	 */
 	function performMigration(direction) {
+		//Revert working directory to previous state
+		process.chdir(previousWorkingDirectory);
+
 		var db = require('./lib/db');
 		db.getConnection(require('./' + configFileName)[dbProperty], function (err, db) {
 			var migrationCollection = db.migrationCollection,
@@ -239,7 +242,6 @@ function runMongoMigrate() {
 
 				set.on('save', function(){
 					log('migration', 'complete');
-					process.chdir(previousWorkingDirectory);
 					process.exit();
 				});
 

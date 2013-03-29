@@ -104,7 +104,7 @@ If we were to create another migration using `mongo-migrate create`, and then ex
 
 (The MIT License)
 
-Copyright (c) 2013 Austin Floyd &lt;austin.floyd@sparcedge.com&gt;
+Copyright &copy; 2013 Austin Floyd &lt;austin.floyd@sparcedge.com&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

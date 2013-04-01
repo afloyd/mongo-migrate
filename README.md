@@ -14,8 +14,8 @@ Usage: node mongo-migrate [options] [command]
 Options:
 	-runmm, --runMongoMIgrate		Run the migration from the command line
 	-c, --chdir <path>				Change the working directory (if you wish to store your migrations outside of this folder
-	-cfg, --config <path>			DB config file name
-	--dbn, --dbPropName <string>	Property name for the database connection in the config file. The configuration file should 
+	-cfg, --config <filename>		DB config file name
+	--dbn, --dbPropName <string>		Property name for the database connection in the config file. The configuration file should 
 									contain something like 
 									{ 	
 										appDb : { //appDb would be the dbPropName
@@ -26,9 +26,9 @@ Options:
 									}
 	
 Commands:
-	down			migrate down
-	up				migrate up
-	create [title]	create a new migration file with optional [title]
+	down [revision]		migrate down (stop at optional revision name/number)
+	up [revision]		migrate up (stop at optional revision name/number)
+	create [title]		create a new migration file with optional [title]
 ```
 
 ##Creating Migrations
@@ -54,7 +54,7 @@ For example:
 	$ node mongo-migrate -runmm create add-owners
 ```
 
-The first call creates `./migrations/000-add-pets.js`, which we can populate:
+The first call creates `./migrations/0005-add-pets.js`, which we can populate:
 ```
 exports.up = function (db, next) {
 	var pets = mongodb.Collection(db, 'pets');
@@ -67,7 +67,7 @@ exports.down = function (db, next) {
 };
 ```
 
-The second creates `./migrations/001-add-owners.js`, which we can populate:
+The second creates `./migrations/0010-add-owners.js`, which we can populate:
 ```
 	exports.up = function(db, next){
 		var owners = mongodb.Collection(db, 'owners');
@@ -85,8 +85,8 @@ When first running the migrations, all will be executed in sequence.
 
 ```
 	node mongo-migrate -runmm
-	up : migrations/000-add-pets.js
-	up : migrations/001-add-owners.js
+	up : migrations/0005-add-pets.js
+	up : migrations/0010-add-owners.js
 	migration : complete
 ```
 
@@ -96,11 +96,67 @@ Subsequent attempts will simply output "complete", as they have already been exe
 	migration : complete
 ```
 
-If we were to create another migration using `mongo-migrate create`, and then execute migrations again, we would execute only those not previously executed:
+If we were to create another migration using `mongo-migrate create coolest-owner`, and then execute migrations again, we would execute only those not previously executed:
 ```
 	$ node mongo-migrate -runmm
-	up : migrations/003-coolest-owner
+	up : migrations/0015-coolest-owner
 ```
+
+If we were to then migrate using `mongo-migrate down 5`. This means to run from current revision, which in this case would be `0015-coolecst-owner`, down to revision number 5. Note that you can use either the revision number, or then full revision name `0005-add-pets`
+```
+	$ node mongo-migrate -runmm down 5
+	down : migrations/0015-coolest-owner
+	down : migrations/0010-add-owners
+```
+
+## Configuration
+### Working Directory
+The options for connecting to the database are read in from a file. You can configure where the file is read in from and where the migration directory root is by the `-c <path>` option.
+```
+	$ node mongo-migrate -c ../.. up
+	migration : complete
+```
+This would set the working directory two levels above the mongo-migrate directory, such as if you included it into another project and it was nested in the node_modules folder.
+
+### Config filename
+The default configuration filename is `default-config.json`. If you wish to use a different filename, use the `-cfg <filename>` option:
+```
+	$ node mongo-migrate -cfg my-config.json up
+	migration : complete
+```
+
+### Config file property name
+Inside the configuration file, mongo-migrate expects the database connection information to be nested inside an object. The default object name is `mongoAppDb`. If you wish to change this you can use the `-dbn <string>` option:
+```
+	$ node mongo-migrate -dbn dbSettings up
+	migration : complete
+```
+This would tell mongo-migrate your config file looks something like:
+```
+	{
+		dbSettings: {
+			host: 'localhost',
+			db: 'myDatabaseName',
+			//port: 27017 //Specifying a port is optional
+		}
+	}
+```
+
+
+All of these settings can be combined as desired, except for the up/down obviously ;)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 (The MIT License)
 

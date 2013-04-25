@@ -325,7 +325,7 @@ if (runmmIdx > -1 || runMongoMigrateIdx > -1) {
 				break;
 			case '-dbn':
 			case '--dbPropName':
-				setConfigFileProperty(require());
+				setConfigFileProperty(required());
 				break;
 			default:
 				if (options.command) {

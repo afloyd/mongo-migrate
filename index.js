@@ -207,7 +207,7 @@ function runMongoMigrate(direction, migrationEnd) {
 
 			var curr = pad((migrations.pop() || 0) + 5),
 					title = slugify([].slice.call(arguments).join(' '));
-			title = title ? curr + '-' + title : curr + '-';
+			title = title ? curr + '-' + title : curr;
 			create(title);
 		}
 	};

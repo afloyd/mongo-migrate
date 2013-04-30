@@ -320,7 +320,7 @@ if (runmmIdx > -1 || runMongoMigrateIdx > -1) {
 				chdir(required());
 				break;
 			case '-cfg':
-			case '-config':
+			case '--config':
 				setConfigFilename(required());
 				break;
 			case '-dbn':

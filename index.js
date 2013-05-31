@@ -120,6 +120,7 @@ function runMongoMigrate(direction, migrationEnd) {
 	 * Load migrations.
 	 * @param {String} direction
 	 * @param {Number} lastMigrationNum
+	 * @param {Number} migrateTo
 	 */
 	function migrations(direction, lastMigrationNum, migrateTo) {
 		var isDirectionUp = direction === 'up',
@@ -127,39 +128,50 @@ function runMongoMigrate(direction, migrationEnd) {
 			migrateToNum = hasMigrateTo ? parseInt(migrateTo, 10) : undefined,
 			migrateToFound = !hasMigrateTo;
 
-		var migrationsToRun = fs.readdirSync('migrations').sort(function (a, b) {
-			var aMigrationNum = parseInt(a.match(/^\d+/)[0], 10),
-					bMigrationNum = parseInt(b.match(/^\d+/)[0], 10);
+		var migrationsToRun = fs.readdirSync('migrations')
+			.filter(function (file) {
+				var formatCorrect = file.match(/^\d+.*\.js$/),
+					migrationNum = formatCorrect && parseInt(file.match(/^\d+/)[0], 10),
+					isRunnable = formatCorrect && isDirectionUp ? migrationNum > lastMigrationNum : migrationNum <= lastMigrationNum;
 
-			if (aMigrationNum > bMigrationNum) {
-				return isDirectionUp ? 1 : -1;
-			}
-			if (aMigrationNum < bMigrationNum) {
-				return isDirectionUp ? -1 : 1;
-			}
-
-			return 0;
-		}).filter(function(file){
-			var formatCorrect = file.match(/^\d+.*\.js$/),
-				migrationNum = formatCorrect && parseInt(file.match(/^\d+/)[0], 10),
-				isRunnable = formatCorrect && isDirectionUp ? migrationNum > lastMigrationNum : migrationNum <= lastMigrationNum;
-
-			if (hasMigrateTo) {
-				if (migrateToNum === migrationNum) {
-					migrateToFound = true;
+				if (!formatCorrect) {
+					console.log('"' + file + '" ignored. Does not match migration naming schema');
 				}
 
-				if (isDirectionUp) {
-					isRunnable = isRunnable && migrateToNum >= migrationNum;
-				} else {
-					isRunnable = isRunnable && migrateToNum < migrationNum;
-				}
-			}
+				return formatCorrect && isRunnable;
+			}).sort(function (a, b) {
+				var aMigrationNum = parseInt(a.match(/^\d+/)[0], 10),
+						bMigrationNum = parseInt(b.match(/^\d+/)[0], 10);
 
-			return formatCorrect && isRunnable;
-		}).map(function(file){
-			return 'migrations/' + file;
-		});
+				if (aMigrationNum > bMigrationNum) {
+					return isDirectionUp ? 1 : -1;
+				}
+				if (aMigrationNum < bMigrationNum) {
+					return isDirectionUp ? -1 : 1;
+				}
+
+				return 0;
+			}).filter(function(file){
+				var formatCorrect = file.match(/^\d+.*\.js$/),
+					migrationNum = formatCorrect && parseInt(file.match(/^\d+/)[0], 10),
+					isRunnable = formatCorrect && isDirectionUp ? migrationNum > lastMigrationNum : migrationNum <= lastMigrationNum;
+
+				if (hasMigrateTo) {
+					if (migrateToNum === migrationNum) {
+						migrateToFound = true;
+					}
+
+					if (isDirectionUp) {
+						isRunnable = isRunnable && migrateToNum >= migrationNum;
+					} else {
+						isRunnable = isRunnable && migrateToNum < migrationNum;
+					}
+				}
+
+				return formatCorrect && isRunnable;
+			}).map(function(file){
+				return 'migrations/' + file;
+			});
 
 		if (!migrateToFound) {
 			return abort('migration `'+ migrateTo + '` not found!');

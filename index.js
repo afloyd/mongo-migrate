@@ -20,7 +20,7 @@ var options = { args: [] };
  * Current working directory.
  */
 var previousWorkingDirectory = process.cwd(),
-	cwd;
+	cwd = process.cwd();
 
 var configFileName = 'default-config.json',
 		dbProperty = 'mongoAppDb';
@@ -242,7 +242,7 @@ function runMongoMigrate(direction, migrationEnd) {
 	 */
 	function performMigration(direction, migrateTo) {
 		var db = require('./lib/db');
-		db.getConnection(require(process.cwd() + path.sep + configFileName)[dbProperty], function (err, db) {
+		db.getConnection(require(cwd + path.sep + configFileName)[dbProperty], function (err, db) {
 			var migrationCollection = db.migrationCollection,
 					dbConnection = db.connection;
 			if (err) {
@@ -265,7 +265,7 @@ function runMongoMigrate(direction, migrationEnd) {
 					migrationCollection: migrationCollection
 				});
 				migrations(direction, lastMigrationNum, migrateTo).forEach(function(path){
-					var mod = require(process.cwd() + '/' + path);
+					var mod = require(cwd + '/' + path);
 					migrate({
 						num: parseInt(path.split('/')[1].match(/^(\d+)/)[0], 10),
 						title: path,

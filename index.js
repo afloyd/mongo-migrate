@@ -23,6 +23,7 @@ var previousWorkingDirectory = process.cwd(),
 	cwd = process.cwd();
 
 var configFileName = 'default-config.json',
+		dbConfig = null,
 		dbProperty = 'mongoAppDb';
 
 /**
@@ -242,7 +243,7 @@ function runMongoMigrate(direction, migrationEnd) {
 	 */
 	function performMigration(direction, migrateTo) {
 		var db = require('./lib/db');
-		db.getConnection(require(cwd + path.sep + configFileName)[dbProperty], function (err, db) {
+		db.getConnection(dbConfig || require(cwd + path.sep + configFileName)[dbProperty], function (err, db) {
 			var migrationCollection = db.migrationCollection,
 					dbConnection = db.connection;
 			if (err) {
@@ -311,6 +312,10 @@ function setConfigFileProperty(propertyName) {
 	dbProperty = propertyName;
 }
 
+function setDbConfig(conf) {
+	dbConfig = conf;
+}
+
 var runmmIdx = args.indexOf('-runmm'),
 	runMongoMigrateIdx = args.indexOf('--runMongoMigrate');
 if (runmmIdx > -1 || runMongoMigrateIdx > -1) {
@@ -353,6 +358,7 @@ if (runmmIdx > -1 || runMongoMigrateIdx > -1) {
 	module.exports = {
 		run: runMongoMigrate,
 		changeWorkingDirectory: chdir,
+		setDbConfig: setDbConfig,
 		setConfigFilename: setConfigFilename,
 		setConfigFileProp: setConfigFileProperty
 	};

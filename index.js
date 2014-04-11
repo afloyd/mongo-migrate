@@ -244,12 +244,12 @@ function runMongoMigrate(direction, migrationEnd) {
 	function performMigration(direction, migrateTo) {
 		var db = require('./lib/db');
 		db.getConnection(dbConfig || require(cwd + path.sep + configFileName)[dbProperty], function (err, db) {
-			var migrationCollection = db.migrationCollection,
-					dbConnection = db.connection;
 			if (err) {
 				console.error('Error connecting to database');
 				process.exit(1);
 			}
+			var migrationCollection = db.migrationCollection,
+					dbConnection = db.connection;
 
 			migrationCollection.find({}).sort({num: -1}).limit(1).toArray(function (err, migrationsRun) {
 				if (err) {

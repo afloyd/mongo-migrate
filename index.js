@@ -19,8 +19,7 @@ var options = { args: [] };
 /**
  * Current working directory.
  */
-var previousWorkingDirectory = process.cwd(),
-	cwd = process.cwd();
+var previousWorkingDirectory = process.cwd();
 
 var configFileName = 'default-config.json',
 		dbConfig = null,
@@ -232,7 +231,7 @@ function runMongoMigrate(direction, migrationEnd) {
 	 */
 	function create(name) {
 		var path = 'migrations/' + name + '.js';
-		log('create', join(cwd, path));
+		log('create', join(process.cwd(), path));
 		fs.writeFileSync(path, template);
 	}
 
@@ -243,7 +242,7 @@ function runMongoMigrate(direction, migrationEnd) {
 	 */
 	function performMigration(direction, migrateTo) {
 		var db = require('./lib/db');
-		db.getConnection(dbConfig || require(cwd + path.sep + configFileName)[dbProperty], function (err, db) {
+		db.getConnection(dbConfig || require(process.cwd() + path.sep + configFileName)[dbProperty], function (err, db) {
 			if (err) {
 				console.error('Error connecting to database');
 				process.exit(1);
@@ -266,7 +265,7 @@ function runMongoMigrate(direction, migrationEnd) {
 					migrationCollection: migrationCollection
 				});
 				migrations(direction, lastMigrationNum, migrateTo).forEach(function(path){
-					var mod = require(cwd + '/' + path);
+					var mod = require(process.cwd() + '/' + path);
 					migrate({
 						num: parseInt(path.split('/')[1].match(/^(\d+)/)[0], 10),
 						title: path,
@@ -301,7 +300,7 @@ function runMongoMigrate(direction, migrationEnd) {
 }
 
 function chdir(dir) {
-	process.chdir(cwd = dir);
+	process.chdir(dir);
 }
 
 function setConfigFilename(filename) {

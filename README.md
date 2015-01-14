@@ -6,7 +6,7 @@ Built with a starting framework from: https://github.com/visionmedia/node-migrat
 
 ## Installation
 	$ npm install mongo-migrate
-	
+
 ##Usage
 ```
 Usage: node mongo-migrate [options] [command]
@@ -15,16 +15,16 @@ Options:
 	-runmm, --runMongoMIgrate		Run the migration from the command line
 	-c, --chdir <path>				Change the working directory (if you wish to store your migrations outside of this folder
 	-cfg, --config <filename>		DB config file name
-	--dbn, --dbPropName <string>		Property name for the database connection in the config file. The configuration file should 
-									contain something like 
-									{ 	
+	--dbn, --dbPropName <string>		Property name for the database connection in the config file. The configuration file should
+									contain something like
+									{
 										appDb : { //appDb would be the dbPropName
-											host: 'localhost', 
+											host: 'localhost',
 											db: 'mydbname',
 											//port: '27017' //include a port if necessary
 										}
 									}
-	
+
 Commands:
 	down [revision]		migrate down (stop at optional revision name/number)
 	up [revision]		migrate up (stop at optional revision name/number)
@@ -74,7 +74,7 @@ The second creates `./migrations/0010-add-owners.js`, which we can populate:
 ```
 	exports.up = function(db, next){
 		var owners = mongodb.Collection(db, 'owners');
-		owners.insert({name: 'taylor'}, next);		
+		owners.insert({name: 'taylor'}, next);
     };
 
 	exports.down = function(db, next){
@@ -144,7 +144,15 @@ This would tell mongo-migrate your config file looks something like:
 		}
 	}
 ```
-
+To connect to a replica set, use  the `replicaSet` property:
+```
+	{
+		dbSettings: {
+			replicaSet : ["localhost:27017","localhost:27018","localhost:27019"],
+			db: 'myDatabaseName',
+		}
+	}
+```
 
 All of these settings can be combined as desired, except for the up/down obviously ;)
 

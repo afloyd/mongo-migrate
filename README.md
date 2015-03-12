@@ -32,10 +32,10 @@ Commands:
 ```
 
 ##Command-line usage
-NPM will install `mongo-migrate` into a `node_modules` folder within the directory it is run. To use `mongo-migrate` from the command line, you must always specify the relative path from your current directory to the `mongo-migrate` directory for `node` to be able to find it. Such as: `node .\node_modules\mongo-migrate create` (shown in examples below), or on *nix machines `node ./node_modules/mongo-migrate create`.
+NPM will install `mongo-migrate` into a `node_modules` folder within the directory it is run. To use `mongo-migrate` from the command line, you must always specify the relative path from your current directory to the `mongo-migrate` directory for `node` to be able to find it. Such as: `node .\node_modules\mongo-migrate -runmm create` (shown in examples below), or on *nix machines `node ./node_modules/mongo-migrate -runmm create`.
 
 ##Creating Migrations
-To create a migration execute with `node .\node_modules\mongo-migrate create` and optionally a title. mongo-migrate will create a node module within `./migrations/` which contains the following two exports:
+To create a migration execute with `node .\node_modules\mongo-migrate -runmm create` and optionally a title. mongo-migrate will create a node module within `./migrations/` which contains the following two exports:
 ```
 var mongodb = require('mongodb');
 
@@ -99,13 +99,13 @@ Subsequent attempts will simply output "complete", as they have already been exe
 	migration : complete
 ```
 
-If we were to create another migration using `node .\node_modules\mongo-migrate create coolest-owner`, and then execute migrations again, we would execute only those not previously executed:
+If we were to create another migration using `node .\node_modules\mongo-migrate -runmm create coolest-owner`, and then execute migrations again, we would execute only those not previously executed:
 ```
 	$ node .\node_modules\mongo-migrate -runmm
 	up : migrations/0015-coolest-owner
 ```
 
-If we were to then migrate using `node .\node_modules\mongo-migrate down 5`. This means to run from current revision, which in this case would be `0015-coolecst-owner`, down to revision number 5. Note that you can use either the revision number, or then full revision name `0005-add-pets`
+If we were to then migrate using `node .\node_modules\mongo-migrate -runmm down 5`. This means to run from current revision, which in this case would be `0015-coolecst-owner`, down to revision number 5. Note that you can use either the revision number, or then full revision name `0005-add-pets`
 ```
 	$ node .\node_modules\mongo-migrate -runmm down 5
 	down : migrations/0015-coolest-owner
@@ -116,7 +116,7 @@ If we were to then migrate using `node .\node_modules\mongo-migrate down 5`. Thi
 ### Working Directory
 The options for connecting to the database are read in from a file. You can configure where the file is read in from and where the migration directory root is by the `-c <path>` option.
 ```
-	$ node .\node_modules\mongo-migrate -c ../.. up
+	$ node .\node_modules\mongo-migrate -runmm -c ../.. up
 	migration : complete
 ```
 This would set the working directory two levels above the mongo-migrate directory, such as if you included it into another project and it was nested in the node_modules folder.
@@ -124,14 +124,14 @@ This would set the working directory two levels above the mongo-migrate director
 ### Config filename
 The default configuration filename is `default-config.json`. If you wish to use a different filename, use the `-cfg <filename>` option:
 ```
-	$ node .\node_modules\mongo-migrate -cfg my-config.json up
+	$ node .\node_modules\mongo-migrate -runmm -cfg my-config.json up
 	migration : complete
 ```
 
 ### Config file property name
 Inside the configuration file, mongo-migrate expects the database connection information to be nested inside an object. The default object name is `mongoAppDb`. If you wish to change this you can use the `-dbn <string>` option:
 ```
-	$ node .\node_modules\mongo-migrate -dbn dbSettings up
+	$ node .\node_modules\mongo-migrate -runmm -dbn dbSettings up
 	migration : complete
 ```
 This would tell mongo-migrate your config file looks something like:

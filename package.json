@@ -21,5 +21,8 @@
   "main": "index",
   "engines": {
     "node": ">= 0.8.x"
+  },
+  "bin": {
+    "mongo-migrate": "./bin/mongo-migrate.js"
   }
 }

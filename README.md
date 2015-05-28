@@ -83,6 +83,8 @@ The second creates `./migrations/0010-add-owners.js`, which we can populate:
 	};
 ```
 
+Note, for mongodb 2.x you need to use `db.collection('<collection-name>')` instead of `mongodb.Collection(db, '<collection-name>')`.
+
 ## Running Migrations
 When first running the migrations, all will be executed in sequence.
 

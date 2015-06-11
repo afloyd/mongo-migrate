@@ -107,13 +107,17 @@ function pad(n) {
 	return Array(5 - n.toString().length).join('0') + n;
 }
 
-function runMongoMigrate(direction, migrationEnd) {
-	if (typeof direction !== 'undefined') {
+function runMongoMigrate(direction, migrationEnd, next) {
+	if (direction) {
 		options.command = direction;
 	}
 
-	if (typeof migrationEnd !== 'undefined') {
+	if (migrationEnd) {
 		options.args.push(migrationEnd);
+	}
+
+	if (next) {
+		options.args.push(next);
 	}
 
 	/**
@@ -194,15 +198,15 @@ function runMongoMigrate(direction, migrationEnd) {
 		/**
 		 * up
 		 */
-		up: function(migrateTo){
-			performMigration('up', migrateTo);
+		up: function(migrateTo, next){
+			performMigration('up', migrateTo, next);
 		},
 
 		/**
 		 * down
 		 */
-		down: function(migrateTo){
-			performMigration('down', migrateTo);
+		down: function(migrateTo, next){
+			performMigration('down', migrateTo, next);
 		},
 
 		/**
@@ -240,20 +244,35 @@ function runMongoMigrate(direction, migrationEnd) {
 	 *
 	 * @param {String} direction
 	 */
-	function performMigration(direction, migrateTo) {
+	function performMigration(direction, migrateTo, next) {
+		if (!next &&
+	    Object.prototype.toString.call(migrateTo) === '[object Function]') {
+	    next = migrateTo;
+	    migrateTo = undefined;
+	  }
+
+		if (!next) {
+			next = function(err) {
+				if (err) {
+					console.error(err);
+					process.exit(1);
+				} else {
+					process.exit();
+				}
+			}
+		}
+
 		var db = require('./lib/db');
 		db.getConnection(dbConfig || require(process.cwd() + path.sep + configFileName)[dbProperty], function (err, db) {
 			if (err) {
-				console.error('Error connecting to database');
-				process.exit(1);
+				return next(new verror.WError(err, 'Error connecting to database'));
 			}
 			var migrationCollection = db.migrationCollection,
 					dbConnection = db.connection;
 
 			migrationCollection.find({}).sort({num: -1}).limit(1).toArray(function (err, migrationsRun) {
 				if (err) {
-					console.error('Error querying migration collection', err);
-					process.exit(1);
+					return next(new verror.WError(err, 'Error querying migration collection'));
 				}
 
 				var lastMigration = migrationsRun[0],
@@ -284,7 +303,7 @@ function runMongoMigrate(direction, migrationEnd) {
 
 				set.on('save', function(){
 					log('migration', 'complete');
-					process.exit();
+					return next();
 				});
 
 				set[direction](null, lastMigrationNum);

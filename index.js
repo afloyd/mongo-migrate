@@ -9,7 +9,8 @@ var args = process.argv.slice(2);
 var migrate = require('./lib/migrate'),
 	path = require('path'),
 	join = path.join,
-	fs = require('fs');
+	fs = require('fs'),
+	verror = require('verror');
 
 /**
  * Option defaults.

@@ -44,7 +44,7 @@ exports.up = function (db, next) {
 	next();
 };
 
-exports.down = function (db, mext) {
+exports.down = function (db, next) {
 	next();
 };
 ```

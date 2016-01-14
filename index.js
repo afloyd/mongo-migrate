@@ -333,7 +333,7 @@ function setConfigFileProperty(propertyName) {
 }
 
 function setDbConfig(conf) {
-	dbConfig = conf;
+	dbConfig = JSON.parse(conf);
 }
 
 var runmmIdx = args.indexOf('-runmm'),

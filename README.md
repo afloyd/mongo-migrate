@@ -15,16 +15,18 @@ Usage: node mongodb-migrate [options] [command]
 Options:
 	-runmm, --runMongoMIgrate		Run the migration from the command line
 	-c, --chdir <path>				Change the working directory (if you wish to store your migrations outside of this folder
+	-dbc, --dbConfig            	JSON string containing db settings (overrides -c, -cfg, & -dbn). The parameter when used would look like this:
+										-dbc="{ host: 'localhost', db: 'mydbname', port: '27017', username: 'myuser', password: 'mypwd'}"
 	-cfg, --config <filename>		DB config file name
-	--dbn, --dbPropName <string>		Property name for the database connection in the config file. The configuration file should
+	--dbn, --dbPropName <string>	Property name for the database connection in the config file. The configuration file should
 									contain something like
-									{
-										appDb : { //appDb would be the dbPropName
-											host: 'localhost',
-											db: 'mydbname',
-											//port: '27017' //include a port if necessary
+										{
+											appDb : { //appDb would be the dbPropName
+												host: 'localhost',
+												db: 'mydbname',
+												//port: '27017' //include a port if necessary
+											}
 										}
-									}
 
 Commands:
 	down [revision]		migrate down (stop at optional revision name/number)

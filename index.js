@@ -35,7 +35,8 @@ var usage = [
 	, ''
 	, '  Options:'
 	, ''
-	, '     -runmm, --runMongoMigrate   Run the migration from the command line',
+	, '     -runmm, --runMongoMigrate   Run the migration from the command line'
+	, '     -dbc, --dbConfig            JSON string containing db settings (overrides -c, -cfg, & -dbn)'
 	, '     -c, --chdir <path>    		change the working directory'
 	, '     -cfg, --config <path> 		DB config file name'
 	, '     -dbn, --dbPropName <string> Property name for database connection in config file'
@@ -350,6 +351,10 @@ if (runmmIdx > -1 || runMongoMigrateIdx > -1) {
 			case 'help':
 				console.log(usage);
 				process.exit();
+				break;
+			case '-dbc':
+			case '-dbConfig':
+				setDbConfig(required());
 				break;
 			case '-c':
 			case '--chdir':

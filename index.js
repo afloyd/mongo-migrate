@@ -353,7 +353,7 @@ if (runmmIdx > -1 || runMongoMigrateIdx > -1) {
 				process.exit();
 				break;
 			case '-dbc':
-			case '-dbConfig':
+			case '--dbConfig':
 				setDbConfig(required());
 				break;
 			case '-c':

@@ -15,16 +15,18 @@ Usage: node mongodb-migrate [options] [command]
 Options:
 	-runmm, --runMongoMIgrate		Run the migration from the command line
 	-c, --chdir <path>				Change the working directory (if you wish to store your migrations outside of this folder
+	-dbc, --dbConfig            	Valid JSON string containing db settings (overrides -c, -cfg, & -dbn), like this:
+										-dbc='{ "host": "localhost", "db": "mydbname", "port": 27017, "username": "myuser", "password": "mypwd"}'
 	-cfg, --config <filename>		DB config file name
-	--dbn, --dbPropName <string>		Property name for the database connection in the config file. The configuration file should
+	--dbn, --dbPropName <string>	Property name for the database connection in the config file. The configuration file should
 									contain something like
-									{
-										appDb : { //appDb would be the dbPropName
-											host: 'localhost',
-											db: 'mydbname',
-											//port: '27017' //include a port if necessary
+										{
+											appDb : { //appDb would be the dbPropName
+												host: 'localhost',
+												db: 'mydbname',
+												//port: '27017' //include a port if necessary
+											}
 										}
-									}
 
 Commands:
 	down [revision]		migrate down (stop at optional revision name/number)
@@ -116,6 +118,12 @@ If we were to then migrate using `node .\node_modules\mongodb-migrate -runmm dow
 ```
 
 ## Configuration
+### JSON String
+This option allows you to pass in the database configuration on the command line, eliminating the need to store settings in a config file. The argument should be wrapped in single quotes, and all keys and string values must be in double quotes. Using this option overrides any of the other config options described below. The "port", "username", and "password" properties are optional.
+```
+$ node .\node_modules\mongodb-migrate -runmm -dbc '{ "host":"localhost","db":"mydbname","port":27017,"username":"myuser","password":"mypwd"}' up
+migration : complete
+```
 ### Working Directory
 The options for connecting to the database are read in from a file. You can configure where the file is read in from and where the migration directory root is by the `-c <path>` option.
 ```

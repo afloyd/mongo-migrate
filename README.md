@@ -164,6 +164,15 @@ To connect to a replica set, use  the `replicaSet` property:
 		}
 	}
 ```
+or use `connectionString` property:
+```
+	{
+		dbSettings: {
+			connectionString: 'mongodb://user:password@mongo1.host.com:27018,mongo2.host.com:27018,mongo-arbiter.host.com:27018/?w=majority&amp;wtimeoutMS=10000&amp;journal=true'
+		}
+	}
+```
+`connectionString` has priority over the other properties
 
 All of these settings can be combined as desired, except for the up/down obviously ;)
 

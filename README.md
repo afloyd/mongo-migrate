@@ -27,6 +27,7 @@ Options:
 												//port: '27017' //include a port if necessary
 											}
 										}
+	-i								Prompt before run migrations
 
 Commands:
 	down [revision]		migrate down (stop at optional revision name/number)
@@ -211,5 +212,3 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
 CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-

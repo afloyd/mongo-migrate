@@ -63,12 +63,12 @@ For example:
 The first call creates `./migrations/0005-add-pets.js`, which we can populate:
 ```
 exports.up = function (db, next) {
-	var pets = mongodb.Collection(db, 'pets');
+	var pets = db.Collection('pets');
 	pets.insert({name: 'tobi'}, next);
 };
 
 exports.down = function (db, next) {
-	var pets = mongodb.Collection(db, 'pets');
+	var pets = db.Collection('pets');
 	pets.findAndModify({name: 'tobi'}, [], {}, { remove: true }, next);
 };
 ```
@@ -76,12 +76,12 @@ exports.down = function (db, next) {
 The second creates `./migrations/0010-add-owners.js`, which we can populate:
 ```
 	exports.up = function(db, next){
-		var owners = mongodb.Collection(db, 'owners');
+		var owners = db.Collection('owners');
 		owners.insert({name: 'taylor'}, next);
     };
 
 	exports.down = function(db, next){
-		var owners = mongodb.Collection(db, 'owners');
+		var owners = db.Collection('owners');
 		pets.findAndModify({name: 'taylor'}, [], {}, { remove: true }, next);
 	};
 ```

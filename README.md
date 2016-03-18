@@ -148,27 +148,27 @@ Inside the configuration file, mongodb-migrate expects the database connection i
 This would tell mongodb-migrate your config file looks something like:
 ```
 	{
-		dbSettings: {
-			host: 'localhost',
-			db: 'myDatabaseName',
-			//port: 27017 //Specifying a port is optional
+		"dbSettings": {
+			"host": "localhost",
+			"db": "myDatabaseName",
+			//"port": 27017 //Specifying a port is optional
 		}
 	}
 ```
 To connect to a replica set, use  the `replicaSet` property:
 ```
 	{
-		dbSettings: {
-			replicaSet : ["localhost:27017","localhost:27018","localhost:27019"],
-			db: 'myDatabaseName',
+		"dbSettings": {
+			"replicaSet" : ["localhost:27017","localhost:27018","localhost:27019"],
+			"db": "myDatabaseName",
 		}
 	}
 ```
 or use `connectionString` property:
 ```
 	{
-		dbSettings: {
-			connectionString: 'mongodb://user:password@mongo1.host.com:27018,mongo2.host.com:27018,mongo-arbiter.host.com:27018/?w=majority&amp;wtimeoutMS=10000&amp;journal=true'
+		"dbSettings": {
+			"connectionString": "mongodb://user:password@mongo1.host.com:27018,mongo2.host.com:27018,mongo-arbiter.host.com:27018/?w=majority&amp;wtimeoutMS=10000&amp;journal=true"
 		}
 	}
 ```

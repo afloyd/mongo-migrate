@@ -13,7 +13,7 @@ Built starting with a framework from: https://github.com/visionmedia/node-migrat
 Usage: node mongodb-migrate [options] [command]
 
 Options:
-	-runmm, --runMongoMIgrate		Run the migration from the command line
+	-runmm, --runMongoMigrate		Run the migration from the command line
 	-c, --chdir <path>				Change the working directory (if you wish to store your migrations outside of this folder
 	-dbc, --dbConfig            	Valid JSON string containing db settings (overrides -c, -cfg, & -dbn), like this:
 										-dbc='{ "host": "localhost", "db": "mydbname", "port": 27017, "username": "myuser", "password": "mypwd"}'
@@ -35,10 +35,10 @@ Commands:
 ```
 
 ##Command-line usage
-NPM will install `mongodb-migrate` into a `node_modules` folder within the directory it is run. To use `mongodb-migrate` from the command line, you must always specify the relative path from your current directory to the `mongodb-migrate` directory for `node` to be able to find it. Such as: `node .\node_modules\mongodb-migrate -runmm create` (shown in examples below), or on *nix machines `node ./node_modules/mongodb-migrate -runmm create`.
+NPM will install `mongodb-migrate` into a `node_modules` folder within the directory it is run. To use `mongodb-migrate` from the command line, you must always specify the relative path from your current directory to the `mongodb-migrate` directory for `node` to be able to find it. Such as: `node ./node_modules/mongodb-migrate -runmm create` (shown in examples below), or on *nix machines `node ./node_modules/mongodb-migrate -runmm create`.
 
 ##Creating Migrations
-To create a migration execute with `node .\node_modules\mongodb-migrate -runmm create` and optionally a title. mongodb-migrate will create a node module within `./migrations/` which contains the following two exports:
+To create a migration execute with `node ./node_modules/mongodb-migrate -runmm create` and optionally a title. mongodb-migrate will create a node module within `./migrations/` which contains the following two exports:
 ```
 var mongodb = require('mongodb');
 
@@ -56,19 +56,19 @@ All you have to do is populate these, invoking `next()` when complete, and you a
 For example:
 
 ```
-	$ node .\node_modules\mongodb-migrate -runmm create add-pets
-	$ node .\node_modules\mongodb-migrate -runmm create add-owners
+	$ node ./node_modules/mongodb-migrate -runmm create add-pets
+	$ node ./node_modules/mongodb-migrate -runmm create add-owners
 ```
 
 The first call creates `./migrations/0005-add-pets.js`, which we can populate:
 ```
 exports.up = function (db, next) {
-	var pets = mongodb.Collection(db, 'pets');
+	var pets = db.Collection('pets');
 	pets.insert({name: 'tobi'}, next);
 };
 
 exports.down = function (db, next) {
-	var pets = mongodb.Collection(db, 'pets');
+	var pets = db.Collection('pets');
 	pets.findAndModify({name: 'tobi'}, [], {}, { remove: true }, next);
 };
 ```
@@ -76,12 +76,12 @@ exports.down = function (db, next) {
 The second creates `./migrations/0010-add-owners.js`, which we can populate:
 ```
 	exports.up = function(db, next){
-		var owners = mongodb.Collection(db, 'owners');
+		var owners = db.Collection('owners');
 		owners.insert({name: 'taylor'}, next);
     };
 
 	exports.down = function(db, next){
-		var owners = mongodb.Collection(db, 'owners');
+		var owners = db.Collection('owners');
 		pets.findAndModify({name: 'taylor'}, [], {}, { remove: true }, next);
 	};
 ```
@@ -92,7 +92,7 @@ Note, for mongodb 2.x you need to use `db.collection('<collection-name>')` inste
 When first running the migrations, all will be executed in sequence.
 
 ```
-	node .\node_modules\mongodb-migrate -runmm
+	node ./node_modules/mongodb-migrate -runmm
 	up : migrations/0005-add-pets.js
 	up : migrations/0010-add-owners.js
 	migration : complete
@@ -104,15 +104,15 @@ Subsequent attempts will simply output "complete", as they have already been exe
 	migration : complete
 ```
 
-If we were to create another migration using `node .\node_modules\mongodb-migrate -runmm create coolest-owner`, and then execute migrations again, we would execute only those not previously executed:
+If we were to create another migration using `node ./node_modules/mongodb-migrate -runmm create coolest-owner`, and then execute migrations again, we would execute only those not previously executed:
 ```
-	$ node .\node_modules\mongodb-migrate -runmm
+	$ node ./node_modules/mongodb-migrate -runmm
 	up : migrations/0015-coolest-owner
 ```
 
-If we were to then migrate using `node .\node_modules\mongodb-migrate -runmm down 5`. This means to run from current revision, which in this case would be `0015-coolecst-owner`, down to revision number 5. Note that you can use either the revision number, or then full revision name `0005-add-pets`
+If we were to then migrate using `node ./node_modules/mongodb-migrate -runmm down 5`. This means to run from current revision, which in this case would be `0015-coolecst-owner`, down to revision number 5. Note that you can use either the revision number, or then full revision name `0005-add-pets`
 ```
-	$ node .\node_modules\mongodb-migrate -runmm down 5
+	$ node ./node_modules/mongodb-migrate -runmm down 5
 	down : migrations/0015-coolest-owner
 	down : migrations/0010-add-owners
 ```
@@ -121,13 +121,13 @@ If we were to then migrate using `node .\node_modules\mongodb-migrate -runmm dow
 ### JSON String
 This option allows you to pass in the database configuration on the command line, eliminating the need to store settings in a config file. The argument should be wrapped in single quotes, and all keys and string values must be in double quotes. Using this option overrides any of the other config options described below. The "port", "username", and "password" properties are optional.
 ```
-$ node .\node_modules\mongodb-migrate -runmm -dbc '{ "host":"localhost","db":"mydbname","port":27017,"username":"myuser","password":"mypwd"}' up
+$ node ./node_modules/mongodb-migrate -runmm -dbc '{ "host":"localhost","db":"mydbname","port":27017,"username":"myuser","password":"mypwd"}' up
 migration : complete
 ```
 ### Working Directory
 The options for connecting to the database are read in from a file. You can configure where the file is read in from and where the migration directory root is by the `-c <path>` option.
 ```
-	$ node .\node_modules\mongodb-migrate -runmm -c ../.. up
+	$ node ./node_modules/mongodb-migrate -runmm -c ../.. up
 	migration : complete
 ```
 This would set the working directory two levels above the mongodb-migrate directory, such as if you included it into another project and it was nested in the node_modules folder.
@@ -135,40 +135,40 @@ This would set the working directory two levels above the mongodb-migrate direct
 ### Config filename
 The default configuration filename is `default-config.json`. If you wish to use a different filename, use the `-cfg <filename>` option:
 ```
-	$ node .\node_modules\mongodb-migrate -runmm -cfg my-config.json up
+	$ node ./node_modules/mongodb-migrate -runmm -cfg my-config.json up
 	migration : complete
 ```
 
 ### Config file property name
 Inside the configuration file, mongodb-migrate expects the database connection information to be nested inside an object. The default object name is `mongoAppDb`. If you wish to change this you can use the `-dbn <string>` option:
 ```
-	$ node .\node_modules\mongodb-migrate -runmm -dbn dbSettings up
+	$ node ./node_modules/mongodb-migrate -runmm -dbn dbSettings up
 	migration : complete
 ```
 This would tell mongodb-migrate your config file looks something like:
 ```
 	{
-		dbSettings: {
-			host: 'localhost',
-			db: 'myDatabaseName',
-			//port: 27017 //Specifying a port is optional
+		"dbSettings": {
+			"host": "localhost",
+			"db": "myDatabaseName",
+			//"port": 27017 //Specifying a port is optional
 		}
 	}
 ```
 To connect to a replica set, use  the `replicaSet` property:
 ```
 	{
-		dbSettings: {
-			replicaSet : ["localhost:27017","localhost:27018","localhost:27019"],
-			db: 'myDatabaseName',
+		"dbSettings": {
+			"replicaSet" : ["localhost:27017","localhost:27018","localhost:27019"],
+			"db": "myDatabaseName",
 		}
 	}
 ```
 or use `connectionString` property:
 ```
 	{
-		dbSettings: {
-			connectionString: 'mongodb://user:password@mongo1.host.com:27018,mongo2.host.com:27018,mongo-arbiter.host.com:27018/?w=majority&amp;wtimeoutMS=10000&amp;journal=true'
+		"dbSettings": {
+			"connectionString": "mongodb://user:password@mongo1.host.com:27018,mongo2.host.com:27018,mongo-arbiter.host.com:27018/?w=majority&amp;wtimeoutMS=10000&amp;journal=true"
 		}
 	}
 ```
@@ -188,6 +188,8 @@ All of these settings can be combined as desired, except for the up/down obvious
 
 
 
+
+#Licence
 
 (The MIT License)
 

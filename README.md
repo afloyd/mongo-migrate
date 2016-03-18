@@ -189,6 +189,8 @@ All of these settings can be combined as desired, except for the up/down obvious
 
 
 
+#Licence
+
 (The MIT License)
 
 Copyright &copy; 2013 Austin Floyd &lt;austin.floyd@sparcedge.com&gt;

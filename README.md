@@ -13,7 +13,7 @@ Built starting with a framework from: https://github.com/visionmedia/node-migrat
 Usage: node mongodb-migrate [options] [command]
 
 Options:
-	-runmm, --runMongoMIgrate		Run the migration from the command line
+	-runmm, --runMongoMigrate		Run the migration from the command line
 	-c, --chdir <path>				Change the working directory (if you wish to store your migrations outside of this folder
 	-dbc, --dbConfig            	Valid JSON string containing db settings (overrides -c, -cfg, & -dbn), like this:
 										-dbc='{ "host": "localhost", "db": "mydbname", "port": 27017, "username": "myuser", "password": "mypwd"}'

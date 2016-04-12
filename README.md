@@ -17,6 +17,7 @@ Options:
 	-c, --chdir <path>				Change the working directory (if you wish to store your migrations outside of this folder
 	-dbc, --dbConfig            	Valid JSON string containing db settings (overrides -c, -cfg, & -dbn), like this:
 										-dbc='{ "host": "localhost", "db": "mydbname", "port": 27017, "username": "myuser", "password": "mypwd"}'
+	-m, --mDir <filename>		    Directory with migrations (default value: migrations)								
 	-cfg, --config <filename>		DB config file name
 	--dbn, --dbPropName <string>	Property name for the database connection in the config file. The configuration file should
 									contain something like
@@ -131,6 +132,14 @@ The options for connecting to the database are read in from a file. You can conf
 	migration : complete
 ```
 This would set the working directory two levels above the mongodb-migrate directory, such as if you included it into another project and it was nested in the node_modules folder.
+
+### Migrations Directory
+The default directory for reading migration files from is `migrations`. You can configure where the migration directory is by the `--mDir <path>` option.
+```
+	$ node ./node_modules/mongodb-migrate -runmm --mDir app/database/migrations up
+	migration : complete
+```
+This setting is useful when migration files are in different folder than is your working directory and your DB configuration file.
 
 ### Config filename
 The default configuration filename is `default-config.json`. If you wish to use a different filename, use the `-cfg <filename>` option:

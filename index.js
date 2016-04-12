@@ -23,8 +23,9 @@ var options = { args: [] };
 var previousWorkingDirectory = process.cwd();
 
 var configFileName = 'default-config.json',
-		dbConfig = null,
-		dbProperty = 'mongoAppDb';
+    dbConfig = null,
+    dbProperty = 'mongoAppDb',
+    migrationsDirectory = 'migrations';
 
 /**
  * Usage information.
@@ -38,7 +39,8 @@ var usage = [
 	, '     -runmm, --runMongoMigrate   Run the migration from the command line'
 	, '     -dbc, --dbConfig            JSON string containing db settings (overrides -c, -cfg, & -dbn)'
 	, '     -c, --chdir <path>    		change the working directory'
-	, '     -cfg, --config <path> 		DB config file name'
+    , '     -m --mDir <path>            change the migrations directory'
+    , '     -cfg, --config <path> 		DB config file name'
 	, '     -dbn, --dbPropName <string> Property name for database connection in config file'
 	, ''
 	, '  Commands:'
@@ -134,11 +136,11 @@ function runMongoMigrate(direction, migrationEnd, next) {
 			migrateToNum = hasMigrateTo ? parseInt(migrateTo, 10) : undefined,
 			migrateToFound = !hasMigrateTo;
 
-		var migrationsToRun = fs.readdirSync('migrations')
-			.filter(function (file) {
-				var formatCorrect = file.match(/^\d+.*\.js$/),
-					migrationNum = formatCorrect && parseInt(file.match(/^\d+/)[0], 10),
-					isRunnable = formatCorrect && isDirectionUp ? migrationNum > lastMigrationNum : migrationNum <= lastMigrationNum;
+        var migrationsToRun = fs.readdirSync(migrationsDirectory)
+            .filter(function (file) {
+                var formatCorrect = file.match(/^\d+.*\.js$/),
+                    migrationNum = formatCorrect && parseInt(file.match(/^\d+/)[0], 10),
+                    isRunnable = formatCorrect && isDirectionUp ? migrationNum > lastMigrationNum : migrationNum <= lastMigrationNum;
 
 				if (!formatCorrect) {
 					console.log('"' + file + '" ignored. Does not match migration naming schema');
@@ -176,7 +178,7 @@ function runMongoMigrate(direction, migrationEnd, next) {
 
 				return formatCorrect && isRunnable;
 			}).map(function(file){
-				return 'migrations/' + file;
+				return migrationsDirectory + '/' + file;
 			});
 
 		if (!migrateToFound) {
@@ -186,13 +188,13 @@ function runMongoMigrate(direction, migrationEnd, next) {
 		return migrationsToRun;
 	}
 
-	// create ./migrations
+    // create migrationsDirectory
 
-	try {
-		fs.mkdirSync('migrations', 0774);
-	} catch (err) {
-		// ignore
-	}
+    try {
+        fs.mkdirSync(migrationsDirectory, 0774);
+    } catch (err) {
+        // ignore
+    }
 
 	// commands
 
@@ -211,17 +213,17 @@ function runMongoMigrate(direction, migrationEnd, next) {
 			performMigration('down', migrateTo, next);
 		},
 
-		/**
-		 * create [title]
-		 */
-		create: function(){
-			var migrations = fs.readdirSync('migrations').filter(function(file){
-				return file.match(/^\d+/);
-			}).map(function(file){
-						return parseInt(file.match(/^(\d+)/)[1], 10);
-					}).sort(function(a, b){
-						return a - b;
-					});
+        /**
+         * create [title]
+         */
+        create: function(){
+            var migrations = fs.readdirSync(migrationsDirectory).filter(function(file){
+                return file.match(/^\d+/);
+            }).map(function(file){
+                return parseInt(file.match(/^(\d+)/)[1], 10);
+            }).sort(function(a, b){
+                return a - b;
+            });
 
 			var curr = pad((migrations.pop() || 0) + 5),
 					title = slugify([].slice.call(arguments).join(' '));
@@ -230,16 +232,16 @@ function runMongoMigrate(direction, migrationEnd, next) {
 		}
 	};
 
-	/**
-	 * Create a migration with the given `name`.
-	 *
-	 * @param {String} name
-	 */
-	function create(name) {
-		var path = 'migrations/' + name + '.js';
-		log('create', join(process.cwd(), path));
-		fs.writeFileSync(path, template);
-	}
+    /**
+     * Create a migration with the given `name`.
+     *
+     * @param {String} name
+     */
+    function create(name) {
+        var path = migrationsDirectory + '/' + name + '.js';
+        log('create', join(process.cwd(), path));
+        fs.writeFileSync(path, template);
+    }
 
 	/**
 	 * Perform a migration in the given `direction`.
@@ -288,7 +290,7 @@ function runMongoMigrate(direction, migrationEnd, next) {
 				migrations(direction, lastMigrationNum, migrateTo).forEach(function(path){
 					var mod = require(process.cwd() + '/' + path);
 					migrate({
-						num: parseInt(path.split('/')[1].match(/^(\d+)/)[0], 10),
+                        num: parseInt(path.split(migrationsDirectory + '/')[1].match(/^(\d+)/)[0], 10),
 						title: path,
 						up: mod.up,
 						down: mod.down});
@@ -328,6 +330,10 @@ function setConfigFilename(filename) {
 	configFileName = filename;
 }
 
+function setMigrationsDirectory(directory) {
+    migrationsDirectory = directory;
+}
+
 function setConfigFileProperty(propertyName) {
 	dbProperty = propertyName;
 }
@@ -356,6 +362,10 @@ if (runmmIdx > -1 || runMongoMigrateIdx > -1) {
 			case '--dbConfig':
 				setDbConfig(required());
 				break;
+            case '-m':
+            case '--mDir':
+                setMigrationsDirectory(required());
+                break;
 			case '-c':
 			case '--chdir':
 				chdir(required());
@@ -379,11 +389,12 @@ if (runmmIdx > -1 || runMongoMigrateIdx > -1) {
 
 	runMongoMigrate();
 } else {
-	module.exports = {
-		run: runMongoMigrate,
-		changeWorkingDirectory: chdir,
-		setDbConfig: setDbConfig,
-		setConfigFilename: setConfigFilename,
-		setConfigFileProp: setConfigFileProperty
-	};
+    module.exports = {
+        run: runMongoMigrate,
+        changeWorkingDirectory: chdir,
+        setMigrationsDirectory: setMigrationsDirectory,
+        setDbConfig: setDbConfig,
+        setConfigFilename: setConfigFilename,
+        setConfigFileProp: setConfigFileProperty
+    };
 }

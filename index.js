@@ -265,7 +265,7 @@ function runMongoMigrate(direction, migrationEnd, next) {
 		}
 
 		var db = require('./lib/db');
-		db.getConnection(dbConfig || require(process.cwd() + path.sep + configFileName)[dbProperty], function (err, db) {
+		db.getConnection(getDbConfig(), function (err, db) {
 			if (err) {
 				return next(new verror.WError(err, 'Error connecting to database'));
 			}
@@ -334,6 +334,18 @@ function setConfigFileProperty(propertyName) {
 
 function setDbConfig(conf) {
 	dbConfig = JSON.parse(conf);
+}
+
+function getDbConfig() {
+	if (!dbConfig) {
+		var split = dbProperty.split('.');
+		var res = require(process.cwd() + path.sep + configFileName);
+		for (var i = 0; i < split.length; i++) {
+			res = res[split[i]];
+		}
+		dbConfig = res;
+	}
+	return dbConfig;
 }
 
 var runmmIdx = args.indexOf('-runmm'),

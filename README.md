@@ -1,5 +1,5 @@
-#mongo-migrate
-####NPM: mongodb-migrate
+# mongo-migrate
+#### NPM: mongodb-migrate
 =============
 
 Built starting with a framework from: https://github.com/visionmedia/node-migrate
@@ -8,7 +8,7 @@ Built starting with a framework from: https://github.com/visionmedia/node-migrat
 ## Installation
 	$ npm install mongodb-migrate
 
-##Usage
+## Usage
 ```
 Usage: node mongodb-migrate [options] [command]
 
@@ -34,10 +34,10 @@ Commands:
 	create [title]		create a new migration file with optional [title]
 ```
 
-##Command-line usage
+## Command-line usage
 NPM will install `mongodb-migrate` into a `node_modules` folder within the directory it is run. To use `mongodb-migrate` from the command line, you must always specify the relative path from your current directory to the `mongodb-migrate` directory for `node` to be able to find it. Such as: `node ./node_modules/mongodb-migrate -runmm create` (shown in examples below), or on *nix machines `node ./node_modules/mongodb-migrate -runmm create`.
 
-##Creating Migrations
+## Creating Migrations
 To create a migration execute with `node ./node_modules/mongodb-migrate -runmm create` and optionally a title. mongodb-migrate will create a node module within `./migrations/` which contains the following two exports:
 ```
 var mongodb = require('mongodb');
@@ -189,7 +189,7 @@ All of these settings can be combined as desired, except for the up/down obvious
 
 
 
-#Licence
+# Licence
 
 (The MIT License)
 

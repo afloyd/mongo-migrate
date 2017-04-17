@@ -193,7 +193,7 @@ All of these settings can be combined as desired, except for the up/down obvious
 
 (The MIT License)
 
-Copyright &copy; 2013 Austin Floyd &lt;austin.floyd@sparcedge.com&gt;
+Copyright &copy; 2017 Austin Floyd
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

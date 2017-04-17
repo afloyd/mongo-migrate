@@ -18,7 +18,7 @@ Options:
 	-dbc, --dbConfig            	Valid JSON string containing db settings (overrides -c, -cfg, & -dbn), like this:
 										-dbc='{ "host": "localhost", "db": "mydbname", "port": 27017, "username": "myuser", "password": "mypwd"}'
 	-cfg, --config <filename>		DB config file name
-	--dbn, --dbPropName <string>	Property name for the database connection in the config file. The configuration file should
+	-dbn, --dbPropName <string>	Property name for the database connection in the config file. The configuration file should
 									contain something like
 										{
 											appDb : { //appDb would be the dbPropName

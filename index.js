@@ -10,6 +10,7 @@ var migrate = require('./lib/migrate'),
 	path = require('path'),
 	join = path.join,
 	fs = require('fs'),
+	readline = require('readline'),
 	verror = require('verror');
 
 /**
@@ -24,7 +25,8 @@ var previousWorkingDirectory = process.cwd();
 
 var configFileName = 'default-config.json',
 		dbConfig = null,
-		dbProperty = 'mongoAppDb';
+		dbProperty = 'mongoAppDb',
+		interactive = false;
 
 /**
  * Usage information.
@@ -35,11 +37,12 @@ var usage = [
 	, ''
 	, '  Options:'
 	, ''
-	, '     -runmm, --runMongoMigrate   Run the migration from the command line'
-	, '     -dbc, --dbConfig            JSON string containing db settings (overrides -c, -cfg, & -dbn)'
-	, '     -c, --chdir <path>    		change the working directory'
-	, '     -cfg, --config <path> 		DB config file name'
-	, '     -dbn, --dbPropName <string> Property name for database connection in config file'
+	, '     -runmm, --runMongoMigrate    Run the migration from the command line'
+	, '     -dbc, --dbConfig             JSON string containing db settings (overrides -c, -cfg, & -dbn)'
+	, '     -c, --chdir <path>           Change the working directory'
+	, '     -cfg, --config <path>        DB config file name'
+	, '     -dbn, --dbPropName <string>  Property name for database connection in config file'
+	, '     -i                           Prompt before run migrations'
 	, ''
 	, '  Commands:'
 	, ''
@@ -54,8 +57,7 @@ var usage = [
  */
 
 var template = [
-	''
-	, 'var mongodb = require(\'mongodb\');'
+	'var mongodb = require(\'mongodb\');'
 	, ''
 	, 'exports.up = function(db, next){'
 	, '    next();'
@@ -64,7 +66,6 @@ var template = [
 	, 'exports.down = function(db, next){'
 	, '    next();'
 	, '};'
-	, ''
 ].join('\n');
 
 /**
@@ -261,7 +262,7 @@ function runMongoMigrate(direction, migrationEnd, next) {
 				} else {
 					process.exit();
 				}
-			}
+			};
 		}
 
 		var db = require('./lib/db');
@@ -285,30 +286,55 @@ function runMongoMigrate(direction, migrationEnd, next) {
 					db: dbConnection,
 					migrationCollection: migrationCollection
 				});
-				migrations(direction, lastMigrationNum, migrateTo).forEach(function(path){
-					var mod = require(process.cwd() + '/' + path);
-					migrate({
-						num: parseInt(path.split('/')[1].match(/^(\d+)/)[0], 10),
-						title: path,
-						up: mod.up,
-						down: mod.down});
-				});
+				var migrationsToRun = migrations(direction, lastMigrationNum, migrateTo);
 
-				//Revert working directory to previous state
-				process.chdir(previousWorkingDirectory);
+				if (interactive && migrationsToRun.length > 0) {
+					var rl = readline.createInterface({
+						input: process.stdin,
+						output: process.stdout
+					});
 
-				var set = migrate();
+					migrationsToRun.forEach(function(migration) {
+						log(direction, migration);
+					});
+					rl.question('These migrations will be run, continue? [y/N] ', function(answer) {
+						rl.close();
+						if (answer === 'y' || answer === 'Y') {
+							_run();
+						} else {
+							process.exit(0);
+						}
+					});
+				} else {
+					_run();
+				}
 
-				set.on('migration', function(migration, direction){
-					log(direction, migration.title);
-				});
+				function _run() {
+					migrationsToRun.forEach(function(path){
+						var mod = require(process.cwd() + '/' + path);
+						migrate({
+							num: parseInt(path.split('/')[1].match(/^(\d+)/)[0], 10),
+							title: path,
+							up: mod.up,
+							down: mod.down});
+					});
 
-				set.on('save', function(){
-					log('migration', 'complete');
-					return next();
-				});
+					//Revert working directory to previous state
+					process.chdir(previousWorkingDirectory);
 
-				set[direction](null, lastMigrationNum);
+					var set = migrate();
+
+					set.on('migration', function(migration, direction){
+						log(direction, migration.title);
+					});
+
+					set.on('save', function(){
+						log('migration', 'complete');
+						return next();
+					});
+
+					set[direction](null, lastMigrationNum);
+				}
 			});
 		});
 	}
@@ -334,6 +360,10 @@ function setConfigFileProperty(propertyName) {
 
 function setDbConfig(conf) {
 	dbConfig = JSON.parse(conf);
+}
+
+function setInteractive(conf) {
+	interactive = true;
 }
 
 var runmmIdx = args.indexOf('-runmm'),
@@ -367,6 +397,9 @@ if (runmmIdx > -1 || runMongoMigrateIdx > -1) {
 			case '-dbn':
 			case '--dbPropName':
 				setConfigFileProperty(required());
+				break;
+			case '-i':
+				setInteractive();
 				break;
 			default:
 				if (options.command) {

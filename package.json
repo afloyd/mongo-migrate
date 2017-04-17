@@ -1,6 +1,6 @@
 {
   "name": "mongodb-migrate",
-  "version": "2.0.1",
+  "version": "2.1.1",
   "description": "Migration framework for mongo in node",
   "keywords": [
     "mongo",

@@ -82,7 +82,7 @@ The second creates `./migrations/0010-add-owners.js`, which we can populate:
 
 	exports.down = function(db, next){
 		var owners = db.Collection('owners');
-		pets.findAndModify({name: 'taylor'}, [], {}, { remove: true }, next);
+		owners.findAndModify({name: 'taylor'}, [], {}, { remove: true }, next);
 	};
 ```
 

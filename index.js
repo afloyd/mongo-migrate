@@ -138,13 +138,14 @@ function runMongoMigrate(direction, migrationEnd, next) {
 			.filter(function (file) {
 				var formatCorrect = file.match(/^\d+.*\.js$/),
 					migrationNum = formatCorrect && parseInt(file.match(/^\d+/)[0], 10),
-					isRunnable = formatCorrect && isDirectionUp ? migrationNum > lastMigrationNum : migrationNum <= lastMigrationNum;
+					isRunnable = formatCorrect && isDirectionUp ? migrationNum > lastMigrationNum : migrationNum <= lastMigrationNum,
+					isFile = fs.statSync(path.join('migrations', file)).isFile();
 
-				if (!formatCorrect) {
+				if (isFile && !formatCorrect) {
 					console.log('"' + file + '" ignored. Does not match migration naming schema');
 				}
 
-				return formatCorrect && isRunnable;
+				return formatCorrect && isRunnable && isFile;
 			}).sort(function (a, b) {
 				var aMigrationNum = parseInt(a.match(/^\d+/)[0], 10),
 						bMigrationNum = parseInt(b.match(/^\d+/)[0], 10);

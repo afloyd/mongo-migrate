@@ -155,6 +155,23 @@ This would tell mongodb-migrate your config file looks something like:
 		}
 	}
 ```
+
+You can also use `migrationCollection` property to specify custom migration collection name, `"migrations"` will be 
+used by default.
+
+```
+	{
+		"dbSettings": {
+			"host": "localhost",
+			"db": "myDatabaseName",
+			//"port": 27017 //Specifying a port is optional
+			//"migrationCollection": "my-migrations" //Specifying migration collection name
+		}
+	}
+```
+
+
+
 To connect to a replica set, use  the `replicaSet` property:
 ```
 	{

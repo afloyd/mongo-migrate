@@ -55,7 +55,7 @@ var usage = [
 
 var template = [
 	''
-	, 'var mongodb = require(\'mongodb\');'
+	, 'const mongodb = require(\'mongodb\');'
 	, ''
 	, 'exports.up = function(db, next){'
 	, '    next();'

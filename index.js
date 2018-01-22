@@ -283,7 +283,7 @@ function runMongoMigrate(direction, migrationEnd, next) {
 
 				migrate({
 					migrationTitle: 'migrations/.migrate',
-					db: dbConnection,
+					database: dbConnection,
 					migrationCollection: migrationCollection
 				});
 				migrations(direction, lastMigrationNum, migrateTo).forEach(function(path){

@@ -24,7 +24,8 @@ var previousWorkingDirectory = process.cwd();
 
 var configFileName = 'default-config.json',
 		dbConfig = null,
-		dbProperty = 'mongoAppDb';
+		dbProperty = 'mongoAppDb',
+		migrationCollection = "migrations";
 
 /**
  * Usage information.
@@ -35,11 +36,12 @@ var usage = [
 	, ''
 	, '  Options:'
 	, ''
-	, '     -runmm, --runMongoMigrate   Run the migration from the command line'
-	, '     -dbc, --dbConfig            JSON string containing db settings (overrides -c, -cfg, & -dbn)'
-	, '     -c, --chdir <path>    		change the working directory'
-	, '     -cfg, --config <path> 		DB config file name'
-	, '     -dbn, --dbPropName <string> Property name for database connection in config file'
+	, '     -runmm, --runMongoMigrate   	Run the migration from the command line'
+	, '     -dbc, --dbConfig            	JSON string containing db settings (overrides -c, -cfg, & -dbn)'
+	, '		--trackingCollection <collection_name>	Change collction name to track already executed migrations'
+	, '     -c, --chdir <path>    			Change the working directory'
+	, '     -cfg, --config <path> 			DB config file name'
+	, '     -dbn, --dbPropName <string> 	Property name for database connection in config file'
 	, ''
 	, '  Commands:'
 	, ''
@@ -266,7 +268,7 @@ function runMongoMigrate(direction, migrationEnd, next) {
 		}
 
 		var db = require('./lib/db');
-		db.getConnection(dbConfig || require(process.cwd() + path.sep + configFileName)[dbProperty], function (err, db) {
+		db.getConnection(trackingCollection, dbConfig || require(process.cwd() + path.sep + configFileName)[dbProperty], function (err, db) {
 			if (err) {
 				return next(new verror.WError(err, 'Error connecting to database'));
 			}
@@ -337,6 +339,10 @@ function setDbConfig(conf) {
 	dbConfig = JSON.parse(conf);
 }
 
+function setTrackingCollection(collectionName) {
+	trackingCollection = collectionName;
+}
+
 var runmmIdx = args.indexOf('-runmm'),
 	runMongoMigrateIdx = args.indexOf('--runMongoMigrate');
 if (runmmIdx > -1 || runMongoMigrateIdx > -1) {
@@ -369,6 +375,9 @@ if (runmmIdx > -1 || runMongoMigrateIdx > -1) {
 			case '--dbPropName':
 				setConfigFileProperty(required());
 				break;
+			case '--trackingCollection':
+				setTrackingCollection(required());
+				break;
 			default:
 				if (options.command) {
 					options.args.push(arg);
@@ -385,6 +394,7 @@ if (runmmIdx > -1 || runMongoMigrateIdx > -1) {
 		changeWorkingDirectory: chdir,
 		setDbConfig: setDbConfig,
 		setConfigFilename: setConfigFilename,
-		setConfigFileProp: setConfigFileProperty
+		setConfigFileProp: setConfigFileProperty,
+		trackingCollection: setTrackingCollection
 	};
 }

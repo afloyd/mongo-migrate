@@ -25,8 +25,7 @@ var previousWorkingDirectory = process.cwd();
 var configFileName = 'default-config.json',
 		dbConfig = null,
 		dbProperty = 'mongoAppDb',
-		migrationCollection = "migrations";
-
+		trackingCollection = "migrations";
 /**
  * Usage information.
  */

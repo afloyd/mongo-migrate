@@ -136,7 +136,7 @@ function runMongoMigrate(direction, migrationEnd, next) {
 
 		var migrationsToRun = fs.readdirSync('migrations')
 			.filter(function (file) {
-				var formatCorrect = file.match(/^\d+.*\.js$/),
+				var formatCorrect = file.match(/^\d+.*\.(t|j)s$/),
 					migrationNum = formatCorrect && parseInt(file.match(/^\d+/)[0], 10),
 					isRunnable = formatCorrect && isDirectionUp ? migrationNum > lastMigrationNum : migrationNum <= lastMigrationNum,
 					isFile = fs.statSync(path.join('migrations', file)).isFile();
@@ -159,7 +159,7 @@ function runMongoMigrate(direction, migrationEnd, next) {
 
 				return 0;
 			}).filter(function(file){
-				var formatCorrect = file.match(/^\d+.*\.js$/),
+				var formatCorrect = file.match(/^\d+.*\.(t|j)s$/),
 					migrationNum = formatCorrect && parseInt(file.match(/^\d+/)[0], 10),
 					isRunnable = formatCorrect && isDirectionUp ? migrationNum > lastMigrationNum : migrationNum <= lastMigrationNum;
 
@@ -283,11 +283,12 @@ function runMongoMigrate(direction, migrationEnd, next) {
 
 				migrate({
 					migrationTitle: 'migrations/.migrate',
-					db: dbConnection,
+					database: dbConnection,
 					migrationCollection: migrationCollection
 				});
 				migrations(direction, lastMigrationNum, migrateTo).forEach(function(path){
-					var mod = require(process.cwd() + '/' + path);
+          var mod = require(process.cwd() + '/' + path);
+          mod = mod.default || mod;
 					migrate({
 						num: parseInt(path.split('/')[1].match(/^(\d+)/)[0], 10),
 						title: path,

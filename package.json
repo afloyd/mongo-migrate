@@ -16,7 +16,7 @@
     "url": "git://github.com/afloyd/mongo-migrate"
   },
   "dependencies": {
-    "mongodb": "^3.0.0",
+    "mongodb": "3.2.3",
     "verror": "^1.6.0"
   },
   "main": "index",

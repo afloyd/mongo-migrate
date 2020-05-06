@@ -1,5 +1,5 @@
 {
-  "name": "mongodb-migrate",
+  "name": "@emento/mongodb-migrate",
   "version": "2.1.0",
   "description": "Migration framework for mongo in node",
   "keywords": [

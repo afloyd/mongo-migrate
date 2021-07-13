@@ -11,7 +11,7 @@ const connectionString = dbConfig.mongoAppDb.connectionString;
 let client, migrationCol, migrationLockCol;
 
 function *getClient(mongoURL) {
-  return mongodb.MongoClient.connect(mongoURL);
+  return mongodb.MongoClient.connect(mongoURL, { useUnifiedTopology: true });
 }
 
 function getCol(client, db, col) {
@@ -161,8 +161,28 @@ describe('migrations tests', () => {
     runDir('./test/test-data/normal', (data) => {
       expect(data.migrateNum).to.equal(2);
       expect(data.completed).to.be.false;
-      expect(data.errs[2]).to.equal('Migration Locked');
+      expect(data.errs.pop()).to.equal('Migration Locked');
       done();
+    });
+  });
+
+  it('migrate with error', done => {
+    runDir('./test/test-data/error', (data) => {
+      expect(data.migrateNum).to.equal(2);
+      expect(data.completed).to.be.false;
+      expect(data.erred).to.be.true;
+      expect(data.errMessages).to.have.lengthOf(1);
+      expect(data.errMessages[0]).to.equal('Error:  Error: test error!');
+      co(function *callback() {
+        const lockNum = yield migrationLockCol.countDocuments({});
+        const migrationNum = yield migrationCol.countDocuments({});
+        expect(lockNum).to.equal(1);
+        expect(migrationNum).to.equal(1);
+      }).then(() => {
+        done();
+      }, (err) => {
+        done(err);
+      });
     });
   });
 });

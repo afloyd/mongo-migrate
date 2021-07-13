@@ -17,7 +17,14 @@
   },
   "dependencies": {
     "mongodb": "3.6.6",
+    "co": "^4.6.0",
     "verror": "^1.6.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "cross-env": "^7.0.2",
+    "mocha": "^7.2.0",
+    "sinon": "^9.0.2"
   },
   "main": "index",
   "engines": {
@@ -25,5 +32,8 @@
   },
   "bin": {
     "mongo-migrate": "./bin/mongo-migrate.js"
+  },
+  "scripts": {
+    "test": "cross-env NODE_ENV=test T_SKIP_TRACE=Y mocha 'test/**/*.test.js'"
   }
 }

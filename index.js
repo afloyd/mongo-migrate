@@ -110,6 +110,8 @@ function pad(n) {
 }
 
 function runMongoMigrate(direction, migrationEnd, next) {
+	var allNumbers = [];
+	var toRunNumbers = new Set();
 	if (direction) {
 		options.command = direction;
 	}
@@ -141,8 +143,12 @@ function runMongoMigrate(direction, migrationEnd, next) {
 					isRunnable = formatCorrect && isDirectionUp ? migrationNum > lastMigrationNum : migrationNum <= lastMigrationNum,
 					isFile = fs.statSync(path.join('migrations', file)).isFile();
 
-				if (isFile && !formatCorrect) {
-					console.log('"' + file + '" ignored. Does not match migration naming schema');
+				if (isFile) {
+					if (!formatCorrect) {
+						console.log('"' + file + '" ignored. Does not match migration naming schema');
+					} else {
+						allNumbers.push(migrationNum);
+					}
 				}
 
 				return formatCorrect && isRunnable && isFile;
@@ -175,7 +181,12 @@ function runMongoMigrate(direction, migrationEnd, next) {
 					}
 				}
 
-				return formatCorrect && isRunnable;
+				var res = formatCorrect && isRunnable;
+				if (res) {
+					toRunNumbers.add(migrationNum);
+				}
+
+				return res;
 			}).map(function(file){
 				return 'migrations/' + file;
 			});
@@ -273,7 +284,7 @@ function runMongoMigrate(direction, migrationEnd, next) {
 			var migrationCollection = db.migrationCollection,
 					dbConnection = db.connection;
 
-			migrationCollection.find({}).sort({num: -1}).limit(1).toArray(function (err, migrationsRun) {
+			migrationCollection.find({}).sort({num: -1}).toArray(function (err, migrationsRun) {
 				if (err) {
 					return next(new verror.WError(err, 'Error querying migration collection'));
 				}
@@ -294,6 +305,21 @@ function runMongoMigrate(direction, migrationEnd, next) {
 						up: mod.up,
 						down: mod.down});
 				});
+				var uniqAllNumbers = new Set(allNumbers);
+				if (allNumbers.length !== uniqAllNumbers.size) {
+					return next(new verror.WError(err, 'Duplicate file numbers'));
+				}
+
+				var hasRunNumbers = new Set(migrationsRun.map(function (m) {
+					return m.num;
+				}));
+				var missedMigrations = allNumbers.filter(function (n) {
+					return !toRunNumbers.has(n) && !hasRunNumbers.has(n);
+				});
+
+				if (missedMigrations.length > 0) {
+					return next(new verror.WError(err, 'Missed migrations numbers : ' + missedMigrations.join(',')));
+				}
 
 				//Revert working directory to previous state
 				process.chdir(previousWorkingDirectory);

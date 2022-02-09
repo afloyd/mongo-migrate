@@ -121,7 +121,15 @@ describe('migrations tests', () => {
       expect(data.completed).to.be.true;
       expect(data.erred).to.be.false;
       expect(data.errMessages).to.be.empty;
-      done();
+      co(function *callback() {
+        const migrationLockColIndexes = yield migrationLockCol.indexes();
+        const numIndex = migrationLockColIndexes.find((index) => index.name === 'idx_migration_lock_num');
+        expect(numIndex.unique).to.be.true;
+      }).then(() => {
+        done();
+      }, (err) => {
+        done(err);
+      });
     });
   });
 

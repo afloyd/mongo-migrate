@@ -277,13 +277,8 @@ function runMongoMigrate(direction, migrationEnd, next) {
 		}
 
 		var db = require('./lib/db');
-		db.getConnection(dbConfig || require(process.cwd() + path.sep + configFileName)[dbProperty], function (err, db) {
-			if (err) {
-				return next(new verror.WError(err, 'Error connecting to database'));
-			}
-			var migrationCollection = db.migrationCollection,
-					dbConnection = db.connection;
 
+		function doMigrate(migrationCollection, dbConnection) {
 			migrationCollection.find({}).sort({num: -1}).toArray(function (err, migrationsRun) {
 				if (err) {
 					return next(new verror.WError(err, 'Error querying migration collection'));
@@ -297,13 +292,14 @@ function runMongoMigrate(direction, migrationEnd, next) {
 					db: dbConnection,
 					migrationCollection: migrationCollection
 				});
-				migrations(direction, lastMigrationNum, migrateTo).forEach(function(path){
+				migrations(direction, lastMigrationNum, migrateTo).forEach(function (path) {
 					var mod = require(process.cwd() + '/' + path);
 					migrate({
 						num: parseInt(path.split('/')[1].match(/^(\d+)/)[0], 10),
 						title: path,
 						up: mod.up,
-						down: mod.down});
+						down: mod.down
+					});
 				});
 				var uniqAllNumbers = new Set(allNumbers);
 				if (allNumbers.length !== uniqAllNumbers.size) {
@@ -326,16 +322,50 @@ function runMongoMigrate(direction, migrationEnd, next) {
 
 				var set = migrate();
 
-				set.on('migration', function(migration, direction){
+				set.on('migration', function (migration, direction) {
 					log(direction, migration.title);
 				});
 
-				set.on('save', function(){
+				set.on('save', function () {
 					log('migration', 'complete');
 					return next();
 				});
 
 				set[direction](null, lastMigrationNum);
+			});
+		}
+
+		db.getConnection(dbConfig || require(process.cwd() + path.sep + configFileName)[dbProperty], function (err, db) {
+			if (err) {
+				return next(new verror.WError(err, 'Error connecting to database'));
+			}
+			var migrationCollection = db.migrationCollection,
+					migrationLockCollection = db.migrationLockCollection,
+					dbConnection = db.connection;
+
+			migrationLockCollection.indexExists(['idx_migration_lock_num'], function (indexExistsErr, isIndexExists) {
+				if (indexExistsErr && indexExistsErr.codeName !== 'NamespaceNotFound') {
+					return next(new verror.WError(indexExistsErr, 'Error checking migration_lock num index'));
+				}
+
+				if (!isIndexExists) {
+					migrationLockCollection.createIndex({
+						num: 1,
+					},
+					{
+						name: 'idx_migration_lock_num',
+						unique: true,
+						background: true,
+					}, function (createIndexErr, createIndexResult) {
+						if (createIndexErr) {
+							return next(new verror.WError(createIndexErr, 'Error creating migration_lock num index'));
+						}
+
+						doMigrate(migrationCollection, dbConnection);
+					});
+				} else {
+					doMigrate(migrationCollection, dbConnection);
+				}
 			});
 		});
 	}

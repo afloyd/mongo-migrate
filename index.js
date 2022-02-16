@@ -12,6 +12,8 @@ var migrate = require('./lib/migrate'),
 	fs = require('fs'),
 	verror = require('verror');
 
+var mongodb = require('mongodb');
+
 /**
  * Option defaults.
  */
@@ -349,19 +351,40 @@ function runMongoMigrate(direction, migrationEnd, next) {
 				}
 
 				if (!isIndexExists) {
-					migrationLockCollection.createIndex({
-						num: 1,
-					},
-					{
-						name: 'idx_migration_lock_num',
-						unique: true,
-						background: true,
-					}, function (createIndexErr, createIndexResult) {
-						if (createIndexErr) {
-							return next(new verror.WError(createIndexErr, 'Error creating migration_lock num index'));
-						}
+					var ObjectID = mongodb.ObjectID;
+					var migrationLockIdsToRemove = [
+						new ObjectID('60bf2e7d343f4c0018bdd7c5'),
+						new ObjectID('60bf2e7d343f4c0018bdd7c7'),
+						new ObjectID('60bf2e7db87f0c0018cf4345'),
+						new ObjectID('60bf2e7d343f4c0018bdd7cb'),
+						new ObjectID('5d270ac4c2b6b70016e4d015'),
+						new ObjectID('5e1ef3354b36a600185961f4'),
+						new ObjectID('6189f64768ebf40018bafd29'),
+						new ObjectID('618b60538c00a50018aa5f42'),
+						new ObjectID('61d3d4430ef66f0018831c25'),
+						new ObjectID('608bdccd7c4b5800111191f6'),
+						new ObjectID('61e776d0f8dbd1001198d477'),
+					];
+					migrationLockCollection.deleteMany({ _id: { $in: migrationLockIdsToRemove }}, {},
+						function (deleteErr, deleteResult) {
+							if (deleteErr) {
+								return next(new verror.WError(deleteErr, 'Error deleting migration_lock num'));
+							}
 
-						doMigrate(migrationCollection, dbConnection);
+							migrationLockCollection.createIndex({
+									num: 1,
+								},
+								{
+									name: 'idx_migration_lock_num',
+									unique: true,
+									background: true,
+								}, function (createIndexErr, createIndexResult) {
+									if (createIndexErr) {
+										return next(new verror.WError(createIndexErr, 'Error creating migration_lock num index'));
+									}
+
+									doMigrate(migrationCollection, dbConnection);
+								});
 					});
 				} else {
 					doMigrate(migrationCollection, dbConnection);

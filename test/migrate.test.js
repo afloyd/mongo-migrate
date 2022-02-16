@@ -1,3 +1,4 @@
+const { ObjectID } = require('mongodb');
 const expect = require('chai').expect;
 const childProcess = require('child_process');
 const readLine = require('readline');
@@ -25,6 +26,16 @@ function *initTestDB() {
     migrationLockCol = getCol(client, dbName, 'migration_lock')
   }
   yield clearDB();
+  yield migrationLockCol.insert([
+    {
+      _id: new ObjectID('60bf2e7d343f4c0018bdd7c5'),
+      num: 1,
+    },
+    {
+      _id: new ObjectID('61e776d0f8dbd1001198d477'),
+      num: 5,
+    },
+  ]);
 }
 
 function *clearDB() {

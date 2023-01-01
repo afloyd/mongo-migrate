@@ -23,8 +23,8 @@ var options = { args: [] };
 var previousWorkingDirectory = process.cwd();
 
 var configFileName = 'default-config.json',
-		dbConfig = null,
-		dbProperty = 'mongoAppDb';
+	dbConfig = null,
+	dbProperty = 'mongoAppDb';
 
 /**
  * Usage information.
@@ -148,7 +148,7 @@ function runMongoMigrate(direction, migrationEnd, next) {
 				return formatCorrect && isRunnable && isFile;
 			}).sort(function (a, b) {
 				var aMigrationNum = parseInt(a.match(/^\d+/)[0], 10),
-						bMigrationNum = parseInt(b.match(/^\d+/)[0], 10);
+					bMigrationNum = parseInt(b.match(/^\d+/)[0], 10);
 
 				if (aMigrationNum > bMigrationNum) {
 					return isDirectionUp ? 1 : -1;
@@ -158,7 +158,7 @@ function runMongoMigrate(direction, migrationEnd, next) {
 				}
 
 				return 0;
-			}).filter(function(file){
+			}).filter(function (file) {
 				var formatCorrect = file.match(/^\d+.*\.js$/),
 					migrationNum = formatCorrect && parseInt(file.match(/^\d+/)[0], 10),
 					isRunnable = formatCorrect && isDirectionUp ? migrationNum > lastMigrationNum : migrationNum <= lastMigrationNum;
@@ -176,12 +176,12 @@ function runMongoMigrate(direction, migrationEnd, next) {
 				}
 
 				return formatCorrect && isRunnable;
-			}).map(function(file){
+			}).map(function (file) {
 				return 'migrations/' + file;
 			});
 
 		if (!migrateToFound) {
-			return abort('migration `'+ migrateTo + '` not found!');
+			return abort('migration `' + migrateTo + '` not found!');
 		}
 
 		return migrationsToRun;
@@ -201,31 +201,31 @@ function runMongoMigrate(direction, migrationEnd, next) {
 		/**
 		 * up
 		 */
-		up: function(migrateTo, next){
+		up: function (migrateTo, next) {
 			performMigration('up', migrateTo, next);
 		},
 
 		/**
 		 * down
 		 */
-		down: function(migrateTo, next){
+		down: function (migrateTo, next) {
 			performMigration('down', migrateTo, next);
 		},
 
 		/**
 		 * create [title]
 		 */
-		create: function(){
-			var migrations = fs.readdirSync('migrations').filter(function(file){
+		create: function () {
+			var migrations = fs.readdirSync('migrations').filter(function (file) {
 				return file.match(/^\d+/);
-			}).map(function(file){
-						return parseInt(file.match(/^(\d+)/)[1], 10);
-					}).sort(function(a, b){
-						return a - b;
-					});
+			}).map(function (file) {
+				return parseInt(file.match(/^(\d+)/)[1], 10);
+			}).sort(function (a, b) {
+				return a - b;
+			});
 
 			var curr = pad((migrations.pop() || 0) + 5),
-					title = slugify([].slice.call(arguments).join(' '));
+				title = slugify([].slice.call(arguments).join(' '));
 			title = title ? curr + '-' + title : curr;
 			create(title);
 		}
@@ -249,13 +249,13 @@ function runMongoMigrate(direction, migrationEnd, next) {
 	 */
 	function performMigration(direction, migrateTo, next) {
 		if (!next &&
-	    Object.prototype.toString.call(migrateTo) === '[object Function]') {
-	    next = migrateTo;
-	    migrateTo = undefined;
-	  }
+			Object.prototype.toString.call(migrateTo) === '[object Function]') {
+			next = migrateTo;
+			migrateTo = undefined;
+		}
 
 		if (!next) {
-			next = function(err) {
+			next = function (err) {
 				if (err) {
 					console.error(err);
 					process.exit(1);
@@ -271,9 +271,9 @@ function runMongoMigrate(direction, migrationEnd, next) {
 				return next(new verror.WError(err, 'Error connecting to database'));
 			}
 			var migrationCollection = db.migrationCollection,
-					dbConnection = db.connection;
+				dbConnection = db.connection;
 
-			migrationCollection.find({}).sort({num: -1}).limit(1).toArray(function (err, migrationsRun) {
+			migrationCollection.find({}).sort({ num: -1 }).limit(1).toArray(function (err, migrationsRun) {
 				if (err) {
 					return next(new verror.WError(err, 'Error querying migration collection'));
 				}
@@ -286,13 +286,14 @@ function runMongoMigrate(direction, migrationEnd, next) {
 					db: dbConnection,
 					migrationCollection: migrationCollection
 				});
-				migrations(direction, lastMigrationNum, migrateTo).forEach(function(path){
+				migrations(direction, lastMigrationNum, migrateTo).forEach(function (path) {
 					var mod = require(process.cwd() + '/' + path);
 					migrate({
 						num: parseInt(path.split('/')[1].match(/^(\d+)/)[0], 10),
 						title: path,
 						up: mod.up,
-						down: mod.down});
+						down: mod.down
+					});
 				});
 
 				//Revert working directory to previous state
@@ -300,11 +301,11 @@ function runMongoMigrate(direction, migrationEnd, next) {
 
 				var set = migrate();
 
-				set.on('migration', function(migration, direction){
+				set.on('migration', function (migration, direction) {
 					log(direction, migration.title);
 				});
 
-				set.on('save', function(){
+				set.on('save', function () {
 					log('migration', 'complete');
 					return next();
 				});

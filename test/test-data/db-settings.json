@@ -1,0 +1,6 @@
+{
+	"mongoAppDb"        : {
+        "connectionString": "mongodb://localhost:27017/mongo-migrate-test?readPreference=primary",
+        "db":"mongo-migrate-test"
+	}
+}

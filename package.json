@@ -1,19 +1,16 @@
 {
-  "name": "mongodb-migrate",
+  "name": "@thimbledev/mongodb-migrate",
   "version": "3.1.0",
+  "private": true,
   "description": "Migration framework for mongo in node",
   "keywords": [
     "mongo",
     "migrate",
     "migrations"
   ],
-  "author": {
-    "name": "Austin Floyd",
-    "email": "texsc98@gmail.com"
-  },
   "repository": {
     "type": "git",
-    "url": "git://github.com/afloyd/mongo-migrate"
+    "url": "https://github.com/carasystems/mongo-migrate.git"
   },
   "dependencies": {
     "mongodb": "3.6.6",
@@ -34,6 +31,6 @@
     "mongo-migrate": "./bin/mongo-migrate.js"
   },
   "scripts": {
-    "test": "cross-env NODE_ENV=test T_SKIP_TRACE=Y mocha 'test/**/*.test.js'"
+    "test": "cross-env NODE_ENV=test mocha 'test/**/*.test.js'"
   }
 }

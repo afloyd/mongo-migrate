@@ -1,0 +1,95 @@
+version: 2.1
+
+orbs:
+  slack: circleci/slack@4.3.3
+
+slack_success_notify: &slack_success_notify
+  slack/notify:
+    event: pass
+    branch_pattern: master,release
+    template: SLACK_TEMPLATE_SUCCESS
+
+slack_fail_notify: &slack_fail_notify
+  slack/notify:
+    event: fail
+    branch_pattern: master,release
+    mentions: '@here'
+    template: SLACK_TEMPLATE_FAIL
+
+docker-image-node: &docker-image-node cimg/node:18.16.0
+
+commands:
+  setup_node_modules:
+    description: "Restore Install node_modules"
+    steps:
+      - restore_cache:
+          keys:
+            - v1-mongo-migrate-{{ checksum "package.json" }}
+      - run:
+          name: NPM install
+          command: npm install --quiet
+
+      - save_cache:
+          key: v1-mongo-migrate-{{ checksum "package.json" }}
+          paths:
+            - ~/mongo-migrate/node_modules
+
+jobs:
+  build:
+    docker:
+      - image: *docker-image-node
+      - image: mongo:4.4
+    working_directory: ~/mongo-migrate
+    steps:
+      - checkout
+
+      - setup_node_modules
+
+      - run:
+          name: Run tests
+          command: npm test
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - node_modules
+
+  npm-publish:
+    docker:
+      - image: *docker-image-node
+    working_directory: ~/mongo-migrate
+    steps:
+      - checkout
+
+      - attach_workspace:
+          at: ~/mongo-migrate
+
+      - run:
+          name: npm publish
+          command: |
+            echo "npm version -> `npm --version`"
+            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN_PUBLISH" >> ~/.npmrc
+            echo "TBD: will publish the package to npm"
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build:
+          context: slack_context
+          post-steps:
+            - *slack_fail_notify
+
+      - npm-publish:
+          context:
+            - slack_context
+            - deploy_context
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
+          post-steps:
+            - *slack_success_notify
+            - *slack_fail_notify

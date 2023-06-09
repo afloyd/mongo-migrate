@@ -69,7 +69,7 @@ jobs:
           command: |
             echo "npm version -> `npm --version`"
             echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN_PUBLISH" >> ~/.npmrc
-            echo "TBD: will publish the package to npm"
+            npm publish
 
 workflows:
   version: 2

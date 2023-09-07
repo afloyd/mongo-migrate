@@ -1,5 +1,23 @@
 # mongo-migrate
 #### NPM: mongodb-migrate
+
+---
+## Thimble's New Features
+1. An error will be thrown if there are any duplicated migration numbers in the `/migrations` folder.
+2. An error will be thrown when there are any migration files that haven't been executed. For instance, if the `0001-migration` and `0003-migration` files were executed, but the `0002-migration` file exists without being executed, an error will occur.
+3. In most cases, each Thimble microservice has two or more instances. We've implemented the `migration_lock` mechanism to prevent the Migration Script from running twice when two servers are started simultaneously.
+4. We've updated the mongodb NodeJS Driver to v3.6.6 to ensure compatibility with the MongoDB server version we use.
+5. A CircleCI pipeline has been added to publish this package to the private npm repository.
+
+### How the migration_lock Mechanism Works
+The migration_lock mechanism operates as follows:
+
+1. The migration_lock has a unique index on the num field.
+2. Before executing a migration script, a record is inserted into the migration_lock. If the record is inserted successfully, the lock is obtained.
+3. If a lock cannot be obtained, the migration will fail and exit.
+4. The lock is released upon completion of the migration.
+---
+
 =============
 
 Built starting with a framework from: https://github.com/visionmedia/node-migrate

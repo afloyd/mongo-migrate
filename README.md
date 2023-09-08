@@ -2,7 +2,7 @@
 #### NPM: mongodb-migrate
 
 ---
-## Thimble's New Features
+## Thimble's customizations
 1. An error will be thrown if there are any duplicated migration numbers in the `/migrations` folder.
 2. An error will be thrown when there are any migration files that haven't been executed. For instance, if the `0001-migration` and `0003-migration` files were executed, but the `0002-migration` file exists without being executed, an error will occur.
 3. In most cases, each Thimble microservice has two or more instances. We've implemented the `migration_lock` mechanism to prevent the Migration Script from running twice when two servers are started simultaneously.

@@ -99,7 +99,11 @@ workflows:
   build-and-deploy:
     jobs:
       - build:
-          context: slack_context
+          context:
+            - slack_context
+          filters:
+            tags:
+              only: /^v.*/
           post-steps:
             - *slack_fail_notify
 

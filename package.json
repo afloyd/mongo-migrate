@@ -1,6 +1,6 @@
 {
   "name": "@thimbledev/mongodb-migrate",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Migration framework for mongo in node",
   "keywords": [
     "mongo",
@@ -20,7 +20,8 @@
     "chai": "^4.2.0",
     "cross-env": "^7.0.2",
     "mocha": "^7.2.0",
-    "sinon": "^9.0.2"
+    "sinon": "^9.0.2",
+    "@cyclonedx/cdxgen": "^9.9.0"
   },
   "main": "index",
   "engines": {
@@ -30,6 +31,7 @@
     "mongo-migrate": "./bin/mongo-migrate.js"
   },
   "scripts": {
-    "test": "cross-env NODE_ENV=test mocha 'test/**/*.test.js'"
+    "test": "cross-env NODE_ENV=test mocha 'test/**/*.test.js'",
+    "sbom": "cdxgen"
   }
 }

@@ -7,16 +7,25 @@ slack_success_notify: &slack_success_notify
   slack/notify:
     event: pass
     branch_pattern: master,release
+    tag_pattern: v.*
     template: SLACK_TEMPLATE_SUCCESS
 
 slack_fail_notify: &slack_fail_notify
   slack/notify:
     event: fail
     branch_pattern: master,release
+    tag_pattern: v.*
     mentions: '@here'
     template: SLACK_TEMPLATE_FAIL
 
-docker-image-node: &docker-image-node cimg/node:18.16.0
+node_image: &node_image cimg/node:18.16.1
+
+executors:
+  build:
+    docker:
+      - image: *node_image
+      - image: mongo:4.4
+    working_directory: ~/mongo-migrate
 
 commands:
   setup_node_modules:
@@ -33,13 +42,18 @@ commands:
           key: v1-mongo-migrate-{{ checksum "package.json" }}
           paths:
             - ~/mongo-migrate/node_modules
+  push_sbom_to_sca:
+    steps:
+      - run:
+          name: Push SBOM to SCA tool
+          command: |
+            npm run sbom -- --no-install-deps --project-name mongo-migrate --project-version << pipeline.git.tag >> --server-url https://dt-apiserver.thimble.com --api-key $DT_API_KEY -o bom.json
+      - store_artifacts:
+          path: bom.json
 
 jobs:
   build:
-    docker:
-      - image: *docker-image-node
-      - image: mongo:4.4
-    working_directory: ~/mongo-migrate
+    executor: build
     steps:
       - checkout
 
@@ -53,16 +67,25 @@ jobs:
           root: .
           paths:
             - node_modules
+            - package-lock.json
 
   npm-publish:
+    circleci_ip_ranges: true
     docker:
-      - image: *docker-image-node
+      - image: *node_image
     working_directory: ~/mongo-migrate
     steps:
       - checkout
 
       - attach_workspace:
           at: ~/mongo-migrate
+
+      - run:
+          name: release check
+          command: |
+            node scripts/release-check.js
+
+      - push_sbom_to_sca
 
       - run:
           name: npm publish
@@ -82,14 +105,17 @@ workflows:
 
       - npm-publish:
           context:
+            - public_context
             - slack_context
             - deploy_context
           requires:
             - build
           filters:
-            branches:
+            tags:
               only:
-                - master
+                - /^v.*/
+            branches:
+              ignore: /.*/
           post-steps:
             - *slack_success_notify
             - *slack_fail_notify

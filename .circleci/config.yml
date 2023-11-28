@@ -106,7 +106,16 @@ workflows:
               only: /^v.*/
           post-steps:
             - *slack_fail_notify
-
+      - hold:
+          type: approval
+          requires:
+            - build
+          filters:
+            tags:
+              only:
+                - /^v.*/
+            branches:
+              ignore: /.*/
       - npm-publish:
           context:
             - public_context
@@ -114,6 +123,7 @@ workflows:
             - deploy_context
           requires:
             - build
+            - hold
           filters:
             tags:
               only:

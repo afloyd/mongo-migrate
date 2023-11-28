@@ -16,6 +16,56 @@ The migration_lock mechanism operates as follows:
 2. Before executing a migration script, a record is inserted into the migration_lock. If the record is inserted successfully, the lock is obtained.
 3. If a lock cannot be obtained, the migration will fail and exit.
 4. The lock is released upon completion of the migration.
+
+## How to Contribute
+### Branch Strategy
+1. Create a feature branch from the master branch:
+    ```bash
+    git checkout master
+    git pull
+    git checkout -b dev/{feature-name}
+    ```
+2. After completing the development, push the branch to the remote repository:
+    ```bash
+    git add .
+    git commit -m 'commit message'
+    git push --set-upstream origin dev/{feature-name}
+    ```
+3. Create a pull request to merge from `dev/{feature-name}` into the `master` branch.
+
+### Development Routine
+When preparing a new change to the repository, follow the steps below to ensure everything is considered:
+- Use the branch strategy above to create a new branch.
+- Prepare your code and tests (`/test`).
+- Run `npm run test` to ensure all tests pass after applying your new code.
+
+After checking all the items above, commit your code and push it to the remote repository, then start a pull request to request a merge into the `master` branch.
+
+### Release
+We publish this library to [npm private packages](https://docs.npmjs.com/about-private-packages) so that it can be utilized as a dependency by various Thimble services as needed.
+
+To publish a npm private package, ensure that the [npm access token](https://docs.npmjs.com/integrations/integrating-npm-with-external-services) is correctly configured. If you are responsible for publishing, reach out to the npm account administrator if needed.
+
+We employ GitHub's [release management](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository) to streamline the release process for this library while adhering to [Semantic Versioning](https://semver.org/).
+
+The release process is automated within our CI/CD pipeline, simplifying the steps required for publishing. When a new tag is created and pushed to GitHub, the CI/CD process for publishing the package to npm is triggered automatically.
+Our chosen CI/CD platform is [CircleCI](https://app.circleci.com/). Detailed publishing instructions are available in the `./circleci/config.yml` file.
+
+Here are the general steps to release a new version of this library:
+1. Ensure that your code is up-to-date and thoroughly tested.
+2. Update the version in `package.json` before initiating the release.
+3. Merge your code into the `master` branch.
+4. Create a new tag and push it to GitHub. As a convention, we should create tags based on the HEAD of the `master` branch.
+5. The CI/CD process will be automatically triggered to publish the package to npm. If the publishing process does not start, you may need to request approval from the administrator of [CircleCI](https://app.circleci.com/).
+6. Create a GitHub [release](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository) to document the release.
+
+Alternatively, you can use GitHub's release management feature to create a tag with these steps:
+1. Ensure that your code is up-to-date and thoroughly tested.
+2. Update the version in `package.json` before initiating the release.
+3. Merge your code into the `master` branch.
+4. Create a GitHub [release](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository). While creating the release, specify a version number for your release, and then click "**+ Create new tag: x.y.z** on publish", For the "Target", please select the `master` branch.
+5. The CI/CD process will be automatically triggered to publish the package to npm. If the publishing process does not start, you may need to request approval from the administrator of [CircleCI](https://app.circleci.com/).
+
 ---
 
 =============
